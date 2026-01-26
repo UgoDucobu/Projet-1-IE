@@ -69,8 +69,7 @@ void loop() {
       lcd.clear();
       duty = 0;
       lcd.printf("stop");
-      if(digitalRead(bp0) == 0) { etat = 1; }
-      else if(digitalRead(bp1) != 0) { etat = 2; } 
+      if((digitalRead(bp0)) == 0 || (digitalRead(bp1)) == 0) { etat = 1; }
       break;
     case 1:
       lcd.clear();
@@ -78,12 +77,13 @@ void loop() {
       duty = analogRead(pot) * 0.99 / 4096 * ((1 << pwmResolution) - 1); 
       lcd.printf("horaire");
       if(digitalRead(bp2) == 0) { etat = 0; }
+      if(digitalRead(bp1) == 0) { etat = 2; }
       break;
     case 2:
       lcd.clear();
-      digitalWrite(sens, 1);
-      duty = analogRead(pot) * 0.99 / 4096 * ((1 << pwmResolution) - 1); 
+      digitalWrite(sens, 0);
       lcd.printf("anti-horaire");
+      if(digitalRead(bp1) != 0) { etat = 1; }
       if(digitalRead(bp2) == 0) { etat = 0; }
       break;
   }
