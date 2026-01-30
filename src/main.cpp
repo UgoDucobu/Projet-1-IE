@@ -19,8 +19,8 @@ const int pwmFreq = 25000; // 25 kHz
 const int pwmResolution = 11; // 11 bits → valeurs de 0 à 2047
 
 //Initialisation servo
-Servo myServo;
-int potServo;
+/*Servo myServo;
+int potServo;*/
 
 void setup() {
   // Initialise la liaison avec le terminal
@@ -40,7 +40,11 @@ void setup() {
   delay(1000);
 
   // Configuration de la broche bouton en entrée avec résistance interne pull-up
+  pinMode(bp0, INPUT_PULLUP);
+  pinMode(bp1, INPUT_PULLUP);
   pinMode(bp2, INPUT_PULLUP);
+
+  pinMode(sens, OUTPUT);
 
   Serial.println();
 
@@ -53,42 +57,44 @@ void setup() {
     
     // Duty cycle = 0,25 → 25 % 
     
-  
-  //myServo.attach(13);
+  /*pinMode(13, OUTPUT);
+  myServo.attach(13);*/
 
 }
 
 void loop() {
   switch(etat) {
     case 0:
-      lcd.clear();
       duty = 0;
       lcd.printf("stop");
-      if((digitalRead(bp0)) == 0 || (digitalRead(bp1)) == 0) { etat = 1; }
+      if(digitalRead(bp0) == 0) { etat = 1; }
+      if(digitalRead(bp1) == 0) { etat = 2; }
       break;
     case 1:
-      lcd.clear();
       digitalWrite(sens, 1);
       duty = analogRead(pot) * 0.99 / 4096 * ((1 << pwmResolution) - 1); 
       lcd.printf("horaire");
       if(digitalRead(bp2) == 0) { etat = 0; }
-      if(digitalRead(bp1) != 0) { etat = 2; }
+      if(digitalRead(bp1) == 0) { etat = 2; }
       break;
     case 2:
-      lcd.clear();
       digitalWrite(sens, 0);
+      duty = analogRead(pot) * 0.99 / 4096 * ((1 << pwmResolution) - 1); 
       lcd.printf("anti-horaire");
-      if(digitalRead(bp1) != 0) { etat = 1; }
       if(digitalRead(bp2) == 0) { etat = 0; }
+      if(digitalRead(bp0) == 0) { etat = 1; }
       break;
   }
   ledcWrite(pwmChannel, duty);
   
   tens = analogRead(pot) * 3.3 / 4095;
   lcd.setCursor(10, 1);
-  lcd.printf("axa%.1f V", tens);
+  lcd.printf("%.1f V", tens);
   Serial.printf("%.1f V", tens);
+      lcd.setCursor(0, 1);
+      lcd.printf("%d, %d, %d",digitalRead(bp0), digitalRead(bp1), digitalRead(bp2));
   lcd.setCursor(0, 0);
+  lcd.printf("%d", etat);
 
   /*
   potServo = analogRead(pot);
