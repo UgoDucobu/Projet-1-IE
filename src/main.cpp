@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include "rgb_lcd.h"
+#include <Servo.h>
 
 rgb_lcd lcd;
  //Initialisation bouton
@@ -16,6 +17,11 @@ const int pwmPin = 27; // broche utilisée
 const int pwmChannel = 0; // Canal LEDC 
 const int pwmFreq = 25000; // 25 kHz 
 const int pwmResolution = 11; // 11 bits → valeurs de 0 à 2047
+
+//Initialisation servo
+Servo myServo;
+int potServo;
+
 void setup() {
   // Initialise la liaison avec le terminal
   Serial.begin(115200);
@@ -31,7 +37,6 @@ void setup() {
  
 
   // Initialisation du port série pour debug
-  Serial.begin(115200);
   delay(1000);
 
   // Configuration de la broche bouton en entrée avec résistance interne pull-up
@@ -48,22 +53,12 @@ void setup() {
     
     // Duty cycle = 0,25 → 25 % 
     
+  
+  //myServo.attach(13);
 
 }
 
 void loop() {
-  /*if (digitalRead(bp2) == 0) {
-    lcd.setRGB(255, 0, 0);
-    lcd.setCursor(0, 1);
-    lcd.printf("etat = 1");
-    Serial.printf("etat = 1\n");
-  } else {
-    lcd.setRGB(0, 0, 255);
-    lcd.setCursor(0, 1);
-    lcd.printf("etat = 0");
-    Serial.printf("etat = 0\n");
-  }*/
-  
   switch(etat) {
     case 0:
       lcd.clear();
@@ -77,7 +72,7 @@ void loop() {
       duty = analogRead(pot) * 0.99 / 4096 * ((1 << pwmResolution) - 1); 
       lcd.printf("horaire");
       if(digitalRead(bp2) == 0) { etat = 0; }
-      if(digitalRead(bp1) == 0) { etat = 2; }
+      if(digitalRead(bp1) != 0) { etat = 2; }
       break;
     case 2:
       lcd.clear();
@@ -89,11 +84,19 @@ void loop() {
   }
   ledcWrite(pwmChannel, duty);
   
-  tens = analogRead(pot) * 3.3 / 4096;
+  tens = analogRead(pot) * 3.3 / 4095;
   lcd.setCursor(10, 1);
-  lcd.printf("%.1f V", tens);
+  lcd.printf("axa%.1f V", tens);
   Serial.printf("%.1f V", tens);
   lcd.setCursor(0, 0);
- 
-  delay(200); // Anti-rebond simple
+
+  /*
+  potServo = analogRead(pot);
+  potServo = potServo / 4095 * 180;
+  if (pot > 90) {
+    potServo = 90;
+  }
+  myServo.write(pot);
+  delay(20);*/
+
 }
